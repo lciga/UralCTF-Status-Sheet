@@ -1,15 +1,10 @@
 package main
 
 import (
-	"github.com/lciga/UralCTF-Status-Sheet/config"
-	"github.com/lciga/UralCTF-Status-Sheet/tables"
+	"UralCTF-Status-Sheet/internal/config"
+	"UralCTF-Status-Sheet/internal/tables"
 )
 
 func main() {
 
-	// data := &sheets.ValueRange{
-	// 	Values: [][]interface{}{
-	// 		{"В процессе"},
-	// 	},
-	// }
 }

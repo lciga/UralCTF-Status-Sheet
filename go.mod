@@ -1,4 +1,4 @@
-module github.com/lciga/UralCTF-Status-Sheet
+module UralCTF-Status-Sheet
 
 go 1.24.5
 
