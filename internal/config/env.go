@@ -1,0 +1,28 @@
+package config
+
+import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+)
+
+// Загрузка переменных окружения из .env файла
+func initEnv() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Ошибка чтения .env файла: %s", err)
+	}
+	log.Println("Переменные окружения успешно загружены")
+}
+
+// Получение значения переменной окружения по ключу
+func getEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("Переменная окружения %s не установлена", key)
+	}
+	log.Printf("Переменная окружения %s успешно получена", key)
+
+	return value
+}

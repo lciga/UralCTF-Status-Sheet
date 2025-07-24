@@ -1,0 +1,31 @@
+# Golang
+/bin/
+/build/
+/dist/
+*.exe
+*.out
+*.test
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Go modules
+go.sum
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+*.local
+
+# Keys and secrets
+/keys/
+/*.json
+*.key
+*.pem
+*.crt
