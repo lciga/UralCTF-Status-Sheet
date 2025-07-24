@@ -15,8 +15,7 @@ var ctx = context.Background()
 // Экстракция кредов из JSON файла ключа
 func credsExtraction() *google.Credentials {
 	// Извлечение переменных из .env
-	initEnv()
-	keysPath := getEnv("PATH_TO_KEY")
+	keysPath := GetEnv("PATH_TO_KEY")
 
 	// Чтенеие JSON файла с кредами
 	jsonCreds, err := os.ReadFile(keysPath)
@@ -36,7 +35,8 @@ func credsExtraction() *google.Credentials {
 }
 
 // Создание сервиса Google Sheets API
-func serviceCreation() *sheets.Service {
+func ServiceCreation() *sheets.Service {
+	credsExtraction()
 	srv, err := sheets.NewService(ctx, option.WithCredentials(credsExtraction()))
 	if err != nil {
 		log.Fatalf("Ошибка создания сервиса Google Sheets API: %s", err)

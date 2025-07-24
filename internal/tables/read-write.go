@@ -7,19 +7,19 @@ import (
 )
 
 // Запись данных в таблицу
-func writeDataToSheet(srv *sheets.Service, spreadsheetId string, data *sheets.ValueRange, writeRange string) {
+func WriteDataToSheet(srv *sheets.Service, spreadsheetId string, writeRange string, data *sheets.ValueRange) {
 	_, err := srv.Spreadsheets.Values.Update(spreadsheetId, writeRange, data).ValueInputOption("RAW").Do()
 	if err != nil {
-		log.Fatalf("Ошибка добавления данных в таблицу: %s", err)
+		log.Fatalf("Ошибка добавления данных в таблицу %s: %s", spreadsheetId, err)
 	}
-	log.Println("Данные успешно добавлены в таблицу")
+	log.Printf("Данные успешно добавлены в таблицу %s", spreadsheetId)
 }
 
 // Чтение данных из таблицы
-func readDataFromSheet(srv *sheets.Service, spreadsheetId string, readRange string) [][]interface{} {
+func ReadDataFromSheet(srv *sheets.Service, spreadsheetId string, readRange string) [][]interface{} {
 	read, err := srv.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Ошибка чтения данных из таблицы %s: %s", spreadsheetId, err)
 	}
 
 	return read.Values

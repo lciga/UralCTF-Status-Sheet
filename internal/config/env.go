@@ -8,7 +8,7 @@ import (
 )
 
 // Загрузка переменных окружения из .env файла
-func initEnv() {
+func InitEnv() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Ошибка чтения .env файла: %s", err)
@@ -17,7 +17,7 @@ func initEnv() {
 }
 
 // Получение значения переменной окружения по ключу
-func getEnv(key string) string {
+func GetEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
 		log.Fatalf("Переменная окружения %s не установлена", key)
