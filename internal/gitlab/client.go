@@ -19,25 +19,16 @@ func InitClient() {
 	Client = &http.Client{}
 }
 
-// Создание нового запроса к GitLab API
-func NewRequest(method, path string) (*http.Request, error) {
-	req, err := http.NewRequest(method, BaseURL+path, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Private-Token", Token)
-	return req, nil
-}
-
 // Отправка запроса к GitLab API
 func SendRequest(path string) (*http.Response, error) {
 	InitClient()
 
 	// Создание запроса для получения тасков
-	req, err := NewRequest(http.MethodGet, path)
+	req, err := http.NewRequest("GET", BaseURL+path, nil)
 	if err != nil {
 		log.Fatalf("Ошибка создания запроса: %v", err)
 	}
+	req.Header.Set("Private-Token", Token)
 	log.Printf("Отправка запроса: %s", req.URL)
 
 	// Отправка запроса
