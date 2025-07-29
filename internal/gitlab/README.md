@@ -5,7 +5,7 @@
 Инициализирует новго клиента для запросов к API. Необходим токен GitLab с разрешениями `read_api`, `read_repository`. 
 ## `func NewRequest(method, path string) (*http.Request, error)`
 Создаёт новый запрос к GitLab API. На вход принимает метод (в нашем случае в основном GET) и [эндпоинт API](https://docs.gitlab.com/api/rest/). Возвращает указатель на объект типа [http.Request](https://pkg.go.dev/net/http#Request) - HTTP-запрос, и объект типа error - ошибку.
-## func SendRequest(path string) (*http.Response, error)
+## `func SendRequest(path string) (*http.Response, error)`
 На основе инициализированного клиента остправляет созданный запрос. На вход принимает [эндпоинт API](https://docs.gitlab.com/api/rest/). Возвращает указатель на объект типа [http.Response](https://pkg.go.dev/net/http#Response) - HTTP-ответ и объект типа error - ошибку.
 
 ## `type MergeRequest []struct`

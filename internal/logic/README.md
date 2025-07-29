@@ -9,7 +9,7 @@
 - Отправлен на доработку - Merge Request отклонён.
 - Готов - слияние ветки таска в main.
 ## `func DetermineStatus(hasYAML bool, mr gitlab.MergeRequest) TaskStatus`
-Предназначена для определения статуса готовности таска на основе данных о директории таска и Merge Request. Принимает на вход логическое значение - наличие YAML-файла в директории и экземпляр структуры [gitlab.MergeRequest](https://github.com/lciga/UralCTF-Status-Sheet/). Возвращает экземпляр типа TaskStatus.
+Предназначена для определения статуса готовности таска на основе данных о директории таска и Merge Request. Принимает на вход логическое значение - наличие YAML-файла в директории и экземпляр структуры [gitlab.MergeRequest](https://github.com/lciga/UralCTF-Status-Sheet/blob/main/internal/gitlab/README.md). Возвращает экземпляр типа TaskStatus.
 
 ## `func getDifficulty(tags []string) string`
 Предназначена для парсинга сложности таска на основе тегов из файла challenge.yml. Принимает на вход массив строк. Возвращает строку.
@@ -25,4 +25,4 @@
 		string(status),           // F: Статус
 	}
 ```
-Далее данные записываются в соответствующую таблицу и в соответствующие поля. На вход податся указатель на объект типа [sheets.Service](https://pkg.go.dev/google.golang.org/api@v0.243.0/sheets/v4#Service) - сервис Google Sheets, [ID таблицы](https://developers.google.com/workspace/sheets/api/guides/concepts), ID проекта, категория и название таска, экземпляр структуры [gitlab.MergeRequest](https://github.com/lciga/UralCTF-Status-Sheet/), содержащей открытые Merge Requests.
+Далее данные записываются в соответствующую таблицу и в соответствующие поля. На вход податся указатель на объект типа [sheets.Service](https://pkg.go.dev/google.golang.org/api@v0.243.0/sheets/v4#Service) - сервис Google Sheets, [ID таблицы](https://developers.google.com/workspace/sheets/api/guides/concepts), ID проекта, категория и название таска, экземпляр структуры [gitlab.MergeRequest](https://github.com/lciga/UralCTF-Status-Sheet/blob/main/internal/gitlab/README.md), содержащей открытые Merge Requests.

@@ -4,10 +4,10 @@
 
 ## Реализация
 Вся логика работы программы реализована в пакетах:
-- [config]() - основная конфигурация программы
-- [gitlab]() - работа с API GitLab
-- [logic]() - основная логика работы программы
-- [tables]() - работа с Google Sheets
+- [config](https://github.com/lciga/UralCTF-Status-Sheet/blob/main/internal/config/README.md) - основная конфигурация программы
+- [gitlab](https://github.com/lciga/UralCTF-Status-Sheet/blob/main/internal/gitlab/README.md) - работа с API GitLab
+- [logic](https://github.com/lciga/UralCTF-Status-Sheet/blob/main/internal/logic/README.md) - основная логика работы программы
+- [tables](https://github.com/lciga/UralCTF-Status-Sheet/blob/main/internal/tables/README.md) - работа с Google Sheets
 
 ## Запуск
 Перед запуском необхрходимо склонировать репозиторий и установить зависимости:
