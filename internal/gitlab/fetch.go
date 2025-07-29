@@ -2,11 +2,14 @@ package gitlab
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
+	"net/url"
 	"time"
 )
 
-type MergeRequest struct {
+type MergeRequest []struct {
 	ID          int       `json:"id"`
 	Iid         int       `json:"iid"`
 	ProjectID   int       `json:"project_id"`
@@ -161,6 +164,7 @@ func GetCommit(projectID string, branch string, path string) (Commit, error) {
 	if err != nil {
 		log.Fatalf("Ошибка получения коммитов: %v", err)
 	}
+	defer resp.Body.Close()
 
 	// Декодирование ответа
 	log.Println("Декодирование коммитов")
@@ -174,16 +178,17 @@ func GetCommit(projectID string, branch string, path string) (Commit, error) {
 }
 
 // Получение merge requests из репозитория
-func GetMergeRequests(projectID string) ([]MergeRequest, error) {
+func GetMergeRequests(projectID string, state string) (MergeRequest, error) {
 	// Запрос к GitLab API для получения merge requests
-	resp, err := SendRequest("api/v4/projects/" + projectID + "/merge_requests")
+	resp, err := SendRequest("api/v4/projects/" + projectID + "/merge_requests?state=" + state)
 	if err != nil {
 		log.Fatalf("Ошибка получения merge requests: %v", err)
 	}
+	defer resp.Body.Close()
 
 	// Декодирование ответа в срез структур MergeRequest
 	log.Println("Декодирование merge requests")
-	var mergeRequests []MergeRequest
+	var mergeRequests MergeRequest
 	if err := json.NewDecoder(resp.Body).Decode(&mergeRequests); err != nil {
 		log.Fatalf("Ошибка декодирования ответа: %v", err)
 	}
@@ -193,9 +198,32 @@ func GetMergeRequests(projectID string) ([]MergeRequest, error) {
 }
 
 // Получение YAML-файла
-func GetYAML(mr MergeRequest, task string, path string) ([]byte, error) {
+func GetYAML(projectID string, openMR MergeRequest, task string, category string) ([]byte, error) {
+	// Ручка GET /projects/:id/repository/files/:file_path/raw?ref=:branch
+	sourceBranch := openMR[0].SourceBranch
+	filePath := fmt.Sprintf("tasks/%s/%s/challenge.yml", category, task)
+	escapedPath := url.PathEscape(filePath)
+	escapedBranch := url.QueryEscape(sourceBranch)
 
-	return nil, nil
+	// Собираем путь к API
+	apiPath := fmt.Sprintf("api/v4/projects/%s/repository/files/%s/raw?ref=%s", projectID, escapedPath, escapedBranch)
+	log.Printf("Получение YAML из %s", apiPath)
+
+	// Отправляем запрос к GitLab API
+	resp, err := SendRequest(apiPath)
+	if err != nil {
+		log.Fatalf("Ошибка получения YAML: %v", err)
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Ошибка при чтении YAML: %v", err)
+	}
+
+	log.Printf("YAML для %s получен успешно", task)
+
+	return data, nil
 }
 
 // Получение тасков из репозитория
@@ -205,6 +233,7 @@ func GetTasks(projectID string, category string) (Tasks, error) {
 	if err != nil {
 		log.Fatalf("Ошибка получения тасков: %v", err)
 	}
+	defer resp.Body.Close()
 
 	// Декодирование ответа в срез структур Tasks
 	log.Println("Декодирование тасков")

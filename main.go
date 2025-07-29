@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	mr, err := gitlab.GetMergeRequests("2")
+	mr, err := gitlab.GetMergeRequests("2", "all")
 	if err != nil {
 		log.Fatalf("Ошибка получения merge requests: %v", err)
 	}

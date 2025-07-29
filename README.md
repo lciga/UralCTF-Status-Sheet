@@ -53,3 +53,9 @@ TODO: Написать нормальный ридми
 	defer resp.Body.Close()
 	fmt.Println(resp)
 ```
+
+## Типы MR для ручки `api/v4/projects/:id/merge_request?state=:state`
+- state=opened — только открытые
+- state=merged — только смерженные
+- state=closed — закрытые, но не смерженные
+- state=all — всё подряд (default)
