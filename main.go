@@ -7,24 +7,23 @@ import (
 )
 
 func main() {
-	mr, err := gitlab.GetMergeRequests("2", "all")
+	mergeRequests, err := gitlab.GetMergeRequests("2", "opened")
 	if err != nil {
 		log.Fatalf("Ошибка получения merge requests: %v", err)
 	}
-	fmt.Println(mr)
-	fmt.Println("-------------------------------------------------------------------------------")
-
-	commits, err := gitlab.GetCommit("2", "main", "tasks/web/too_many_redirects")
-	if err != nil {
-		log.Fatalf("Ошибка получения коммитов: %v", err)
+	if len(mergeRequests) == 0 {
+		log.Println("Нет открытых merge requests")
+		return
 	}
-	fmt.Println(commits)
-	fmt.Println("-------------------------------------------------------------------------------")
 
-	tasks, err := gitlab.GetTasks("2", "web")
+	rawTask, err := gitlab.GetYAML("2", mergeRequests, "too_many_redirects", "web")
 	if err != nil {
-		log.Fatalf("Ошибка получения тасков: %v", err)
+		log.Fatalf("Ошибка получения YAML: %v", err)
 	}
-	fmt.Println(tasks)
-	fmt.Println("-------------------------------------------------------------------------------")
+
+	task, err := gitlab.ParseTask(rawTask)
+	if err != nil {
+		log.Fatalf("Ошибка печати задачи: %v", err)
+	}
+	fmt.Println(task)
 }

@@ -1,10 +1,7 @@
 package gitlab
 
 import (
-// "log"
-// "os"
-
-// "gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v3"
 )
 
 type Task struct {
@@ -28,6 +25,14 @@ type Task struct {
 	Version        string   `yaml:"version"`
 }
 
-func ParseTask(filePath string) (map[interface{}]interface{}, error) {
-	return nil, nil
+// Парсинг YAML задачи в структуру Task
+func ParseTask(data []byte) (Task, error) {
+	var t Task
+
+	err := yaml.Unmarshal(data, &t)
+	if err != nil {
+		return Task{}, err
+	}
+
+	return t, nil
 }

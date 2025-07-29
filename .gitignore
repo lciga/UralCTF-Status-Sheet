@@ -29,3 +29,9 @@ Thumbs.db
 *.key
 *.pem
 *.crt
+
+# Extra files
+*.log
+*.tmp
+*.yaml
+*.yml
