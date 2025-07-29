@@ -37,3 +37,19 @@ TODO: Написать нормальный ридми
 		},
 	}
 ```
+Отправка запроса
+```go
+	gitlab.InitClient()
+
+	req, err := gitlab.NewRequest(http.MethodGet, "api/v4/projects")
+	if err != nil {
+		log.Fatalf("Ошибка создания запроса: %v", err)
+	}
+	resp, err := gitlab.Client.Do(req)
+	if err != nil {
+		log.Fatalf("Ошибка отправки ответа: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+	fmt.Println(resp)
+```

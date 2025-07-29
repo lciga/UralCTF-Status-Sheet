@@ -1,20 +1,15 @@
 package main
 
 import (
-	"UralCTF-Status-Sheet/internal/config"
-	"UralCTF-Status-Sheet/internal/tables"
-	"google.golang.org/api/sheets/v4"
+	"UralCTF-Status-Sheet/internal/gitlab"
+	"fmt"
+	"log"
 )
 
 func main() {
-	config.InitEnv()
-	srv := config.ServiceCreation()
-
-	data := &sheets.ValueRange{
-		Values: [][]interface{}{
-			{"В процессе"},
-		},
+	mr, err := gitlab.GetMergeRequests("2")
+	if err != nil {
+		log.Fatalf("Ошибка получения merge requests: %v", err)
 	}
-
-	tables.WriteDataToSheet(srv, config.GetEnv("SPREADSHEET_ID"), config.GetEnv("SHEET_NAME")+"!A5", data)
+	fmt.Println(mr)
 }
