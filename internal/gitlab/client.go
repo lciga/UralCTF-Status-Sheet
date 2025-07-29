@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"log"
 	"net/http"
 
 	"UralCTF-Status-Sheet/internal/config"
@@ -26,4 +27,30 @@ func NewRequest(method, path string) (*http.Request, error) {
 	}
 	req.Header.Set("Private-Token", Token)
 	return req, nil
+}
+
+// Отправка запроса к GitLab API
+func SendRequest(path string) (*http.Response, error) {
+	InitClient()
+
+	// Создание запроса для получения тасков
+	req, err := NewRequest(http.MethodGet, path)
+	if err != nil {
+		log.Fatalf("Ошибка создания запроса: %v", err)
+	}
+	log.Printf("Отправка запроса: %s", req.URL)
+
+	// Отправка запроса
+	resp, err := Client.Do(req)
+	if err != nil {
+		log.Fatalf("Ошибка отправки ответа: %v", err)
+	}
+	log.Printf("Получен ответ: %s", resp.Status)
+
+	// Проверка статуса ответа
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("Ошибка получения данных: %v", resp.Status)
+	}
+
+	return resp, nil
 }

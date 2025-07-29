@@ -3,7 +3,6 @@ package gitlab
 import (
 	"encoding/json"
 	"log"
-	"net/http"
 	"time"
 )
 
@@ -127,47 +126,93 @@ type MergeRequest struct {
 	ApprovalsBeforeMerge        any  `json:"approvals_before_merge"`
 }
 
-type Commit struct {
+type Commit []struct {
+	ID             string    `json:"id"`
+	ShortID        string    `json:"short_id"`
+	CreatedAt      time.Time `json:"created_at"`
+	ParentIds      []string  `json:"parent_ids"`
+	Title          string    `json:"title"`
+	Message        string    `json:"message"`
+	AuthorName     string    `json:"author_name"`
+	AuthorEmail    string    `json:"author_email"`
+	AuthoredDate   time.Time `json:"authored_date"`
+	CommitterName  string    `json:"committer_name"`
+	CommitterEmail string    `json:"committer_email"`
+	CommittedDate  time.Time `json:"committed_date"`
+	Trailers       struct {
+	} `json:"trailers"`
+	ExtendedTrailers struct {
+	} `json:"extended_trailers"`
+	WebURL string `json:"web_url"`
 }
 
-func GetCommit(projectID string) ([]Commit, error) {
-	return nil, nil
+type Tasks []struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+	Path string `json:"path"`
+	Mode string `json:"mode"`
 }
 
+// Получение коммитов из репозитория
+func GetCommit(projectID string, branch string, path string) (Commit, error) {
+	// Запрос к GitLab API для получения коммитов
+	resp, err := SendRequest("api/v4/projects/" + projectID + "/repository/commits?ref_name=" + branch + "&path=" + path)
+	if err != nil {
+		log.Fatalf("Ошибка получения коммитов: %v", err)
+	}
+
+	// Декодирование ответа
+	log.Println("Декодирование коммитов")
+	var commit Commit
+	if err := json.NewDecoder(resp.Body).Decode(&commit); err != nil {
+		log.Fatalf("Ошибка декодирования ответа: %v", err)
+	}
+	log.Printf("Получено %d", len(commit))
+
+	return commit, nil
+}
+
+// Получение merge requests из репозитория
 func GetMergeRequests(projectID string) ([]MergeRequest, error) {
-	InitClient()
-
-	// Создание запроса для получения merge requests
-	req, err := NewRequest(http.MethodGet, "api/v4/projects/"+projectID+"/merge_requests")
+	// Запрос к GitLab API для получения merge requests
+	resp, err := SendRequest("api/v4/projects/" + projectID + "/merge_requests")
 	if err != nil {
-		log.Fatalf("Ошибка создания запроса: %v", err)
+		log.Fatalf("Ошибка получения merge requests: %v", err)
 	}
-	log.Printf("Отправка запроса: %s", req.URL)
-
-	// Отправка запроса
-	resp, err := Client.Do(req)
-	if err != nil {
-		log.Fatalf("Ошибка отправки ответа: %v", err)
-	}
-	defer resp.Body.Close()
-	log.Printf("Получен ответ: %s", resp.Status)
-
-	// Проверка статуса ответа
-	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Ошибка получения данных: %v", resp.Status)
-	}
-	log.Println("Декодирование ответа")
 
 	// Декодирование ответа в срез структур MergeRequest
+	log.Println("Декодирование merge requests")
 	var mergeRequests []MergeRequest
 	if err := json.NewDecoder(resp.Body).Decode(&mergeRequests); err != nil {
 		log.Fatalf("Ошибка декодирования ответа: %v", err)
 	}
-	log.Printf("Получено %d merge requests", len(mergeRequests))
+	log.Printf("Получено %d", len(mergeRequests))
 
 	return mergeRequests, nil
 }
 
-func GetYAML() {
+// Получение YAML-файла
+func GetYAML(mr MergeRequest, task string, path string) ([]byte, error) {
 
+	return nil, nil
+}
+
+// Получение тасков из репозитория
+func GetTasks(projectID string, category string) (Tasks, error) {
+	// Запрос к GitLab API для получения тасков
+	resp, err := SendRequest("api/v4/projects/2/repository/tree?path=tasks/" + category)
+	if err != nil {
+		log.Fatalf("Ошибка получения тасков: %v", err)
+	}
+
+	// Декодирование ответа в срез структур Tasks
+	log.Println("Декодирование тасков")
+	var tasks Tasks
+	if err := json.NewDecoder(resp.Body).Decode(&tasks); err != nil {
+		log.Fatalf("Ошибка декодирования ответа: %v", err)
+	}
+	log.Printf("Получено %d", len(tasks))
+
+	return tasks, nil
 }

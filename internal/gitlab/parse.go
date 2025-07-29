@@ -1,10 +1,10 @@
 package gitlab
 
 import (
-	"log"
-	"os"
+// "log"
+// "os"
 
-	"gopkg.in/yaml.v3"
+// "gopkg.in/yaml.v3"
 )
 
 type Task struct {
@@ -29,18 +29,5 @@ type Task struct {
 }
 
 func ParseTask(filePath string) (map[interface{}]interface{}, error) {
-	data, err := os.ReadFile("./challenge.yaml")
-	if err != nil {
-		log.Fatalf("Ошибка чтения файла: %v", err)
-	}
-	log.Println("Файл описания таска успешно прочитан")
-
-	task := make(map[interface{}]interface{})
-	err = yaml.Unmarshal([]byte(data), &task)
-	if err != nil {
-		log.Fatalf("Ошибка парсинга YAML: %v", err)
-	}
-	log.Println("Парсинг YAML успешно выполнен")
-
-	return task, nil
+	return nil, nil
 }
