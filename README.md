@@ -1,61 +1,46 @@
 # UralCTF Status Sheet
-TODO: Написать нормальный ридми
 
-## Чтение данных из таблицы
-```go
-	spreadsheetId := os.Getenv("SPREADSHEET_ID")
-	readRange := "Лист1!A:A"
-	read, err := srv.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
-	if err != nil {
-		log.Fatal(err)
-	}
+Данный проект реализует синхронизацию между GitLab репозиторием и Google Sheets для ведения учёта прогресса работы над тасками UralCTF.
 
-	fmt.Println(read.Values)
+## Реализация
+Вся логика работы программы реализована в пакетах:
+- [config]() - основная конфигурация программы
+- [gitlab]() - работа с API GitLab
+- [logic]() - основная логика работы программы
+- [tables]() - работа с Google Sheets
+
+## Запуск
+Перед запуском необхрходимо склонировать репозиторий и установить зависимости:
+```sh
+git clone https://github.com/lciga/UralCTF-Status-Sheet.git
+cd UralCTF-Status-Sheet
+go mod tidy
 ```
-Здесь читаются данные из столбца A
+Нужно создать проект и пользователя с правами Editor Google Cloud Console. Для пользователя создать ключ и скачать его в формате JSON. Также необходимо создать токен GitLab с разрешениями минимум `read_api`, `read_repository`
 
-## Запись данных в таблицу
-```go
-	data := &sheets.ValueRange{
-		Values: [][]interface{}{
-			{"val1", "val2", "val3"},
-		},
-	}
-
-	_, err = srv.Spreadsheets.Values.Append(spreadsheetId, "Лист1!A1", data).ValueInputOption("RAW").Do()
-	if err != nil {
-		log.Fatalf("Ошибка добавления данных в таблицу: %s", err)
-	}
+В корне проекта создаём файл .env следующей структуры:
 ```
-Здесь в таблицу, начиная с ячейки A1 заполняем значениями из `data`
-
-## Пример структуры данных, загружаемых в таблицу
-```go
-	data := &sheets.ValueRange{
-		Values: [][]interface{}{
-			{"В процессе"},
-		},
-	}
+PATH_TO_KEY="..."
+SPREADSHEET_ID="..."
+c="..."
+GITLAB_PROJECT_ID="..."
+GITLAB_URL="..."
 ```
-## Отправка запроса
-```go
-	gitlab.InitClient()
+где, 
+- `PATH_TO_KEY` - путь к файлу Google Service Account JSON 
+- `SPREADSHEET_ID` - [ID таблицы](https://developers.google.com/workspace/sheets/api/guides/concepts)
+- `GITLAB_TOKEN` - [токен GitLab](https://docs.gitlab.com/api/rest/authentication/)
+- `GITLAB_PROJECT_ID` - ID проекта в GitLab
+- `GITLAB_URL` - адрес GitLab
 
-	req, err := gitlab.NewRequest(http.MethodGet, "api/v4/projects")
-	if err != nil {
-		log.Fatalf("Ошибка создания запроса: %v", err)
-	}
-	resp, err := gitlab.Client.Do(req)
-	if err != nil {
-		log.Fatalf("Ошибка отправки ответа: %v", err)
-		return
-	}
-	defer resp.Body.Close()
-	fmt.Println(resp)
+Запусти программу
+```sh
+go run main.go
 ```
 
-## Типы MR для ручки `api/v4/projects/:id/merge_request?state=:state`
-- state=opened — только открытые
-- state=merged — только смерженные
-- state=closed — закрытые, но не смерженные
-- state=all — всё подряд (default)
+
+## TODO
+- Протестировать парсинг YAML
+- Протестировать синхронизацию таблицы
+- Мелкие правки, касающиеся извлечения данных из .env
+- Написать в `main.go` итоговыйвый вариант функции `main`

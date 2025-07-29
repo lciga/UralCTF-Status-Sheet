@@ -1,0 +1,6 @@
+# Пакет tables
+Предназначен для чтения и записи данных Google Sheets
+## `func ReadDataFromSheet(srv *sheets.Service, spreadsheetId string, readRange string) [][]interface{}`
+Предназначена для чтения данных из таблицы Google Sheets. Принимает на вход указатель на объект типа [sheets.Service](https://pkg.go.dev/google.golang.org/api@v0.243.0/sheets/v4#Service), [ID таблицы](https://developers.google.com/workspace/sheets/api/guides/concepts) и диапазон чтения в формате `Sheet!Range`. Возвращает интерфейс, содержащий данные из таблицы.
+## `func WriteDataToSheet(srv *sheets.Service, spreadsheetId string, writeRange string, data *sheets.ValueRange)`
+Предназначена для записи данных в таблицу. Принимает на вход указатель на объект типа [sheets.Service](https://pkg.go.dev/google.golang.org/api@v0.243.0/sheets/v4#Service), [ID таблицы](https://developers.google.com/workspace/sheets/api/guides/concepts), диапазон записи в формате `Sheet!Range` и указатель на объект типа [sheets.ValueRange](https://pkg.go.dev/google.golang.org/api@v0.243.0/sheets/v4#ValueRange).
