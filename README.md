@@ -22,7 +22,7 @@ go mod tidy
 ```
 PATH_TO_KEY="..."
 SPREADSHEET_ID="..."
-c="..."
+GITLAB_TOKEN="..."
 GITLAB_PROJECT_ID="..."
 GITLAB_URL="..."
 ```
