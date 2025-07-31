@@ -158,12 +158,9 @@ type Tasks []struct {
 }
 
 // Получение коммитов из репозитория
-func GetCommit(projectID string, branch string, path string) (Commit, error) {
+func GetCommit(projectID string, branch string, path string) Commit {
 	// Запрос к GitLab API для получения коммитов
-	resp, err := SendRequest("api/v4/projects/" + projectID + "/repository/commits?ref_name=" + branch + "&path=" + path)
-	if err != nil {
-		log.Fatalf("Ошибка получения коммитов: %v", err)
-	}
+	resp := SendRequest("api/v4/projects/" + projectID + "/repository/commits?ref_name=" + branch + "&path=" + path)
 	defer resp.Body.Close()
 
 	// Декодирование ответа
@@ -174,16 +171,13 @@ func GetCommit(projectID string, branch string, path string) (Commit, error) {
 	}
 	log.Printf("Получено %d", len(commit))
 
-	return commit, nil
+	return commit
 }
 
 // Получение merge requests из репозитория
-func GetMergeRequests(projectID string, state string) (MergeRequest, error) {
+func GetMergeRequests(projectID string, state string) MergeRequest {
 	// Запрос к GitLab API для получения merge requests
-	resp, err := SendRequest("api/v4/projects/" + projectID + "/merge_requests?state=" + state)
-	if err != nil {
-		log.Fatalf("Ошибка получения merge requests: %v", err)
-	}
+	resp := SendRequest("api/v4/projects/" + projectID + "/merge_requests?state=" + state)
 	defer resp.Body.Close()
 
 	// Декодирование ответа в срез структур MergeRequest
@@ -194,11 +188,11 @@ func GetMergeRequests(projectID string, state string) (MergeRequest, error) {
 	}
 	log.Printf("Получено %d", len(mergeRequests))
 
-	return mergeRequests, nil
+	return mergeRequests
 }
 
 // Получение YAML-файла
-func GetYAML(projectID string, openMR MergeRequest, task string, category string) ([]byte, error) {
+func GetYAML(projectID string, openMR MergeRequest, task string, category string) []byte {
 	// Ручка GET /projects/:id/repository/files/:file_path/raw?ref=:branch
 	sourceBranch := openMR[0].SourceBranch
 	filePath := fmt.Sprintf("tasks/%s/%s/challenge.yml", category, task)
@@ -210,29 +204,23 @@ func GetYAML(projectID string, openMR MergeRequest, task string, category string
 	log.Printf("Получение YAML из %s", apiPath)
 
 	// Отправляем запрос к GitLab API
-	resp, err := SendRequest(apiPath)
-	if err != nil {
-		log.Fatalf("Ошибка получения YAML: %v", err)
-	}
+	resp := SendRequest(apiPath)
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Ошибка при чтении YAML: %v", err)
+		log.Fatalf("Ошибка при чтении YAML: %v", err)
 	}
 
 	log.Printf("YAML для %s получен успешно", task)
 
-	return data, nil
+	return data
 }
 
 // Получение тасков из репозитория
-func GetTasks(projectID string, category string) (Tasks, error) {
+func GetTasks(projectID string, category string) Tasks {
 	// Запрос к GitLab API для получения тасков
-	resp, err := SendRequest("api/v4/projects/2/repository/tree?path=tasks/" + category)
-	if err != nil {
-		log.Fatalf("Ошибка получения тасков: %v", err)
-	}
+	resp := SendRequest("api/v4/projects/2/repository/tree?path=tasks/" + category)
 	defer resp.Body.Close()
 
 	// Декодирование ответа в срез структур Tasks
@@ -243,5 +231,5 @@ func GetTasks(projectID string, category string) (Tasks, error) {
 	}
 	log.Printf("Получено %d", len(tasks))
 
-	return tasks, nil
+	return tasks
 }

@@ -1,6 +1,8 @@
 package gitlab
 
 import (
+	"log"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -26,13 +28,13 @@ type Task struct {
 }
 
 // Парсинг YAML задачи в структуру Task
-func ParseTask(data []byte) (Task, error) {
+func ParseTask(data []byte) Task {
 	var t Task
 
 	err := yaml.Unmarshal(data, &t)
 	if err != nil {
-		return Task{}, err
+		log.Fatalf("Ошибка парсинага YAML: %v", err)
 	}
 
-	return t, nil
+	return t
 }

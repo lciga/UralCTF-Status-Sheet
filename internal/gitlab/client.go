@@ -13,14 +13,13 @@ var Token string
 
 // Инициализация клиента GitLab
 func InitClient() {
-	config.InitEnv()
 	Token = config.GetEnv("GITLAB_TOKEN")
 	BaseURL = config.GetEnv("GITLAB_URL")
 	Client = &http.Client{}
 }
 
 // Отправка запроса к GitLab API
-func SendRequest(path string) (*http.Response, error) {
+func SendRequest(path string) *http.Response {
 	InitClient()
 
 	// Создание запроса для получения тасков
@@ -43,5 +42,5 @@ func SendRequest(path string) (*http.Response, error) {
 		log.Fatalf("Ошибка получения данных: %v", resp.Status)
 	}
 
-	return resp, nil
+	return resp
 }

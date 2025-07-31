@@ -1,29 +1,28 @@
 package main
 
 import (
+	"UralCTF-Status-Sheet/internal/config"
 	"UralCTF-Status-Sheet/internal/gitlab"
-	"fmt"
+	"UralCTF-Status-Sheet/internal/logic"
+
 	"log"
 )
 
 func main() {
-	mergeRequests, err := gitlab.GetMergeRequests("2", "opened")
-	if err != nil {
-		log.Fatalf("Ошибка получения merge requests: %v", err)
-	}
-	if len(mergeRequests) == 0 {
-		log.Println("Нет открытых merge requests")
-		return
-	}
+	config.InitEnv()
 
-	rawTask, err := gitlab.GetYAML("2", mergeRequests, "too_many_redirects", "web")
-	if err != nil {
-		log.Fatalf("Ошибка получения YAML: %v", err)
-	}
+	category := []string{"web", "pwn", "crypto", "stego", "forensic", "reverse", "ppc"}
 
-	task, err := gitlab.ParseTask(rawTask)
-	if err != nil {
-		log.Fatalf("Ошибка печати задачи: %v", err)
+	spreadsheetID := config.GetEnv("SPREADSHEET_ID")
+	projectID := config.GetEnv("GITLAB_PROJECT_ID")
+	srv := config.ServiceCreation()
+	// logic.SyncTaskEntry(srv, spreadsheetID, projectID, "web", "too_many_redirects", gitlab.GetMergeRequests(projectID, "all"))
+
+	for _, c := range category {
+		task := gitlab.GetTasks(projectID, c)
+		for i := range len(task) {
+			logic.SyncTaskEntry(srv, spreadsheetID, projectID, c, task[i].Name, gitlab.GetMergeRequests(projectID, "all"))
+			log.Printf("Синхронизации %s категория %s", task[i].Name, c)
+		}
 	}
-	fmt.Println(task)
 }

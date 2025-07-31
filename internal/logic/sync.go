@@ -11,17 +11,13 @@ import (
 // Запись задачи в Google Sheets
 func SyncTaskEntry(srv *sheets.Service, spreadsheetID string, projectID string, category string, taskName string, openMR gitlab.MergeRequest) {
 	// Пытаемся достать challenge.yml
-	data, err := gitlab.GetYAML(projectID, openMR, taskName, category)
-	hasYAML := err == nil
+	data := gitlab.GetYAML(projectID, openMR, taskName, category)
+	hasYAML := true
 
 	// Парсим YAML
 	task := gitlab.Task{}
 	if hasYAML {
-		task, err = gitlab.ParseTask(data)
-		if err != nil {
-			log.Printf("Ошибка парсинга YAML для %s: %v", taskName, err)
-			hasYAML = false
-		}
+		task = gitlab.ParseTask(data)
 	} else {
 		log.Printf("Файл challenge.yml не найден для %s/%s", category, taskName)
 	}
