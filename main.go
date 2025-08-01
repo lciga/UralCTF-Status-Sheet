@@ -3,9 +3,9 @@ package main
 import (
 	"UralCTF-Status-Sheet/internal/config"
 	"UralCTF-Status-Sheet/internal/gitlab"
-	"UralCTF-Status-Sheet/internal/logic"
+	"fmt"
 
-	"log"
+	"UralCTF-Status-Sheet/internal/logic"
 )
 
 func main() {
@@ -14,15 +14,18 @@ func main() {
 	category := []string{"web", "pwn", "crypto", "stego", "forensic", "reverse", "ppc"}
 
 	spreadsheetID := config.GetEnv("SPREADSHEET_ID")
+
 	projectID := config.GetEnv("GITLAB_PROJECT_ID")
 	srv := config.ServiceCreation()
-	// logic.SyncTaskEntry(srv, spreadsheetID, projectID, "web", "too_many_redirects", gitlab.GetMergeRequests(projectID, "all"))
+
+	rowIndex := 2 // Начинаем со второй строки (первая — заголовки)
 
 	for _, c := range category {
-		task := gitlab.GetTasks(projectID, c)
-		for i := range len(task) {
-			logic.SyncTaskEntry(srv, spreadsheetID, projectID, c, task[i].Name, gitlab.GetMergeRequests(projectID, "all"))
-			log.Printf("Синхронизации %s категория %s", task[i].Name, c)
+		tasks := gitlab.GetTasks(projectID, c)
+		for _, t := range tasks {
+			writeRange := fmt.Sprintf("Tasks!A%d:F%d", rowIndex, rowIndex)
+			logic.SyncTaskEntry(srv, spreadsheetID, writeRange, projectID, c, t.Name, gitlab.GetMergeRequests(projectID, "all"))
+			rowIndex++
 		}
 	}
 }

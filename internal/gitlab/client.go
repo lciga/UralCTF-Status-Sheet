@@ -25,7 +25,7 @@ func SendRequest(path string) *http.Response {
 	// Создание запроса для получения тасков
 	req, err := http.NewRequest("GET", BaseURL+path, nil)
 	if err != nil {
-		log.Fatalf("Ошибка создания запроса: %v", err)
+		log.Printf("\033[31mОшибка создания запроса: %v\033[0m", err)
 	}
 	req.Header.Set("Private-Token", Token)
 	log.Printf("Отправка запроса: %s", req.URL)
@@ -33,13 +33,13 @@ func SendRequest(path string) *http.Response {
 	// Отправка запроса
 	resp, err := Client.Do(req)
 	if err != nil {
-		log.Fatalf("Ошибка отправки ответа: %v", err)
+		log.Printf("\033[31mОшибка отправки ответа: %v\033[0m", err)
 	}
 	log.Printf("Получен ответ: %s", resp.Status)
 
 	// Проверка статуса ответа
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Ошибка получения данных: %v", resp.Status)
+		log.Printf("\033[31mОшибка получения данных: %v\033[0m", resp.Status)
 	}
 
 	return resp

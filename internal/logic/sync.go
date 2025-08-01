@@ -9,7 +9,7 @@ import (
 )
 
 // Запись задачи в Google Sheets
-func SyncTaskEntry(srv *sheets.Service, spreadsheetID string, projectID string, category string, taskName string, openMR gitlab.MergeRequest) {
+func SyncTaskEntry(srv *sheets.Service, spreadsheetID string, writeRange string, projectID string, category string, taskName string, openMR gitlab.MergeRequest) {
 	// Пытаемся достать challenge.yml
 	data := gitlab.GetYAML(projectID, openMR, taskName, category)
 	hasYAML := true
@@ -19,11 +19,13 @@ func SyncTaskEntry(srv *sheets.Service, spreadsheetID string, projectID string, 
 	if hasYAML {
 		task = gitlab.ParseTask(data)
 	} else {
-		log.Printf("Файл challenge.yml не найден для %s/%s", category, taskName)
+		log.Printf("\033[31mФайл challenge.yml не найден для %s/%s\033[0m", category, taskName)
 	}
+	log.Printf("Задача %s/%s: %s", category, taskName, task.Description)
 
 	// Определяем статус
 	status := DetermineStatus(hasYAML, openMR)
+	log.Printf("Статус задачи %s/%s: %s", category, taskName, status)
 
 	// Формируем строку
 	row := []interface{}{
@@ -36,11 +38,11 @@ func SyncTaskEntry(srv *sheets.Service, spreadsheetID string, projectID string, 
 	}
 
 	// Пишем в таблицу
-	writeRange := "Tasks!A2"
 	valueRange := &sheets.ValueRange{
 		Values: [][]interface{}{row},
 	}
 	tables.WriteDataToSheet(srv, spreadsheetID, writeRange, valueRange)
+	log.Printf("Запись задачи %s/%s в таблицу", category, taskName)
 }
 
 // Достаём сложность из тегов

@@ -11,7 +11,7 @@ import (
 func InitEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Ошибка чтения .env файла: %v", err)
+		log.Printf("\033[31mОшибка чтения .env файла: %v\033[0m", err)
 	}
 	log.Println("Переменные окружения успешно загружены")
 }
@@ -20,7 +20,7 @@ func InitEnv() {
 func GetEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
-		log.Fatalf("Переменная окружения %v не установлена", key)
+		log.Printf("\033[31mПеременная окружения %v не установлена\033[0m", key)
 	}
 	log.Printf("Переменная окружения %v успешно получена", key)
 

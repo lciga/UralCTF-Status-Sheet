@@ -29,12 +29,12 @@ type Task struct {
 
 // Парсинг YAML задачи в структуру Task
 func ParseTask(data []byte) Task {
-	var t Task
-
-	err := yaml.Unmarshal(data, &t)
+	var task Task
+	err := yaml.Unmarshal(data, &task)
 	if err != nil {
-		log.Fatalf("Ошибка парсинага YAML: %v", err)
+		log.Printf("Ошибка при разборе YAML: %v", err)
+	} else {
+		log.Printf("DEBUG: разобранный task: %+v", task)
 	}
-
-	return t
+	return task
 }

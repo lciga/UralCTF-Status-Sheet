@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"net/url"
 	"time"
 )
@@ -157,6 +158,36 @@ type Tasks []struct {
 	Mode string `json:"mode"`
 }
 
+type Branch []struct {
+	Name   string `json:"name"`
+	Commit struct {
+		ID             string    `json:"id"`
+		ShortID        string    `json:"short_id"`
+		CreatedAt      time.Time `json:"created_at"`
+		ParentIds      []string  `json:"parent_ids"`
+		Title          string    `json:"title"`
+		Message        string    `json:"message"`
+		AuthorName     string    `json:"author_name"`
+		AuthorEmail    string    `json:"author_email"`
+		AuthoredDate   time.Time `json:"authored_date"`
+		CommitterName  string    `json:"committer_name"`
+		CommitterEmail string    `json:"committer_email"`
+		CommittedDate  time.Time `json:"committed_date"`
+		Trailers       struct {
+		} `json:"trailers"`
+		ExtendedTrailers struct {
+		} `json:"extended_trailers"`
+		WebURL string `json:"web_url"`
+	} `json:"commit"`
+	Merged             bool   `json:"merged"`
+	Protected          bool   `json:"protected"`
+	DevelopersCanPush  bool   `json:"developers_can_push"`
+	DevelopersCanMerge bool   `json:"developers_can_merge"`
+	CanPush            bool   `json:"can_push"`
+	Default            bool   `json:"default"`
+	WebURL             string `json:"web_url"`
+}
+
 // Получение коммитов из репозитория
 func GetCommit(projectID string, branch string, path string) Commit {
 	// Запрос к GitLab API для получения коммитов
@@ -167,7 +198,7 @@ func GetCommit(projectID string, branch string, path string) Commit {
 	log.Println("Декодирование коммитов")
 	var commit Commit
 	if err := json.NewDecoder(resp.Body).Decode(&commit); err != nil {
-		log.Fatalf("Ошибка декодирования ответа: %v", err)
+		log.Printf("\033[31mОшибка декодирования ответа: %v\033[0m", err)
 	}
 	log.Printf("Получено %d", len(commit))
 
@@ -184,7 +215,7 @@ func GetMergeRequests(projectID string, state string) MergeRequest {
 	log.Println("Декодирование merge requests")
 	var mergeRequests MergeRequest
 	if err := json.NewDecoder(resp.Body).Decode(&mergeRequests); err != nil {
-		log.Fatalf("Ошибка декодирования ответа: %v", err)
+		log.Printf("\033[31mОшибка декодирования ответа: %v\033[0m", err)
 	}
 	log.Printf("Получено %d", len(mergeRequests))
 
@@ -193,7 +224,6 @@ func GetMergeRequests(projectID string, state string) MergeRequest {
 
 // Получение YAML-файла
 func GetYAML(projectID string, openMR MergeRequest, task string, category string) []byte {
-	// Ручка GET /projects/:id/repository/files/:file_path/raw?ref=:branch
 	sourceBranch := openMR[0].SourceBranch
 	filePath := fmt.Sprintf("tasks/%s/%s/challenge.yml", category, task)
 	escapedPath := url.PathEscape(filePath)
@@ -209,10 +239,11 @@ func GetYAML(projectID string, openMR MergeRequest, task string, category string
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalf("Ошибка при чтении YAML: %v", err)
+		log.Printf("\033[31mОшибка при чтении YAML: %v\033[0m", err)
 	}
 
 	log.Printf("YAML для %s получен успешно", task)
+	log.Printf("Длина YAML-данных для %s/%s: %d байт", category, task, len(data))
 
 	return data
 }
@@ -220,16 +251,43 @@ func GetYAML(projectID string, openMR MergeRequest, task string, category string
 // Получение тасков из репозитория
 func GetTasks(projectID string, category string) Tasks {
 	// Запрос к GitLab API для получения тасков
-	resp := SendRequest("api/v4/projects/2/repository/tree?path=tasks/" + category)
+	resp := SendRequest("api/v4/projects/" + projectID + "/repository/tree?path=tasks/" + category)
+	defer resp.Body.Close()
+
+	// Проверка статуса
+	if resp.StatusCode == http.StatusNotFound {
+		log.Printf("Категория %s не найдена (404), пропускаем", category)
+		return nil
+	}
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		log.Printf("\033[31mНеуспешный ответ от GitLab: %d — %s\033[0m", resp.StatusCode, string(body))
+		return nil
+	}
+
+	// Парсинг JSON
+	var tasks Tasks
+	if err := json.NewDecoder(resp.Body).Decode(&tasks); err != nil {
+		log.Printf("\033[31mОшибка декодирования тасков для категории %s: %v\033[0m", category, err)
+		return nil
+	}
+	log.Printf("Категория %s: получено %d тасков", category, len(tasks))
+	return tasks
+}
+
+// Получение веток из репозитория
+func GetBranches(projectID string) Branch {
+	// Запрос к GitLab API для получения тасков
+	resp := SendRequest("api/v4//projects/" + projectID + "/repository/branches")
 	defer resp.Body.Close()
 
 	// Декодирование ответа в срез структур Tasks
-	log.Println("Декодирование тасков")
-	var tasks Tasks
-	if err := json.NewDecoder(resp.Body).Decode(&tasks); err != nil {
-		log.Fatalf("Ошибка декодирования ответа: %v", err)
+	log.Println("Декодирование веток")
+	var branch Branch
+	if err := json.NewDecoder(resp.Body).Decode(&branch); err != nil {
+		log.Printf("\033[31mОшибка декодирования ответа\033[0m: %v", err)
 	}
-	log.Printf("Получено %d", len(tasks))
+	log.Printf("Получено %d", len(branch))
 
-	return tasks
+	return branch
 }

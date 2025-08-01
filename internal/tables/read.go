@@ -10,7 +10,7 @@ import (
 func ReadDataFromSheet(srv *sheets.Service, spreadsheetId string, readRange string) [][]interface{} {
 	read, err := srv.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
-		log.Fatalf("Ошибка чтения данных из таблицы %s: %v", spreadsheetId, err)
+		log.Printf("\033[31mОшибка чтения данных из таблицы %s: %v\033[0m", spreadsheetId, err)
 	}
 
 	return read.Values

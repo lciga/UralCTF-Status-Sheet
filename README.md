@@ -42,7 +42,7 @@ go run main.go
 ```go
 	mergeRequests, err := gitlab.GetMergeRequests("2", "opened")
 	if err != nil {
-		log.Fatalf("Ошибка получения merge requests: %v", err)
+		log.Printf("Ошибка получения merge requests: %v", err)
 	}
 	if len(mergeRequests) == 0 {
 		log.Println("Нет открытых merge requests")
@@ -51,19 +51,17 @@ go run main.go
 
 	rawTask, err := gitlab.GetYAML("2", mergeRequests, "too_many_redirects", "web")
 	if err != nil {
-		log.Fatalf("Ошибка получения YAML: %v", err)
+		log.Printf("Ошибка получения YAML: %v", err)
 	}
 
 	task, err := gitlab.ParseTask(rawTask)
 	if err != nil {
-		log.Fatalf("Ошибка печати задачи: %v", err)
+		log.Printf("Ошибка печати задачи: %v", err)
 	}
 	fmt.Println(task)
 ```
 
-## TODO
-- Протестировать парсинг YAML
-- Протестировать синхронизацию таблицы
-- Мелкие правки, касающиеся извлечения данных из .env
+## 
 - Написать в `main.go` итоговыйвый вариант функции `main`
 - Переработать логику работы программы: выдавать статус "в прогрессе" при создании ветки (написать функцию получения веток???), как вытаскивать challenge.md???
+- Пересмотреть систему логирования: сделать логирование каждого запуска в отдельный файл и перевести в функциях вывод логов в обработку ошибок
